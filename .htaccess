@@ -1,19 +1,22 @@
 RewriteEngine On
+RewriteBase /shortys-pin-golf/
 
-# If this app lives in a subdirectory, uncomment and set your path:
-# RewriteBase /pin-golf/
+# Avoid trailing-slash redirects into real subdirectories (api/entries/, play/, etc.)
+DirectorySlash Off
 
-# Send old .html and .php URLs to clean paths
+# Canonical home
 RewriteRule ^index\.html$ ./ [R=301,L,QSA]
+
+# Legacy .html and .php URLs → clean paths
 RewriteRule ^(.+)\.html$ $1 [R=301,L,QSA]
 RewriteRule ^api/entries\.php$ api/entries [R=301,L]
-RewriteRule ^api/entry\.php$ api/entry [R=301,L,QSA]
+RewriteCond %{QUERY_STRING} (^|&)id=([0-9a-f-]+)(&|$) [NC]
+RewriteRule ^api/entry\.php$ api/entries/%2? [R=301,L]
 
-# API
+# Clean URL routing
 RewriteRule ^api/entries/([0-9a-f-]+)/?$ api/entry.php?id=$1 [L]
 RewriteRule ^api/entries/?$ api/entries.php [L]
 
-# Pages
 RewriteRule ^play/?$ play.html [L]
 RewriteRule ^leaderboard/?$ leaderboard.html [L]
 RewriteRule ^entry/?$ entry.html [L,QSA]

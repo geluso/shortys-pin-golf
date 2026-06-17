@@ -5,6 +5,11 @@ function data_file(): string
     return dirname(__DIR__) . '/data/entries.json';
 }
 
+function data_dir(): string
+{
+    return dirname(data_file());
+}
+
 function json_response($data, int $status = 200): void
 {
     http_response_code($status);
@@ -195,4 +200,75 @@ function find_entry_index(array $entries, string $id): int
         }
     }
     return -1;
+}
+
+function start_session(): void
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+}
+
+function is_admin(): bool
+{
+    start_session();
+    return !empty($_SESSION['admin']);
+}
+
+function require_admin(): void
+{
+    if (!is_admin()) {
+        json_response(['error' => 'Unauthorized'], 401);
+    }
+}
+
+function admin_login(string $password): bool
+{
+    start_session();
+    if (hash_equals('hotdog', $password)) {
+        $_SESSION['admin'] = true;
+        return true;
+    }
+    return false;
+}
+
+function admin_logout(): void
+{
+    start_session();
+    unset($_SESSION['admin']);
+}
+
+function delete_entry(string $id): void
+{
+    $entries = read_entries();
+    $idx = find_entry_index($entries, $id);
+    if ($idx === -1) {
+        json_response(['error' => 'Not found'], 404);
+    }
+    array_splice($entries, $idx, 1);
+    write_entries($entries);
+}
+
+function backup_entries_file(): string
+{
+    $source = data_file();
+    $timestamp = gmdate('Y-m-d-His');
+    $backup = data_dir() . '/scores-' . $timestamp . '.json';
+
+    if (file_exists($source)) {
+        if (!copy($source, $backup)) {
+            throw new RuntimeException('Could not backup scores');
+        }
+    } else {
+        file_put_contents($backup, "[]\n");
+    }
+
+    return $backup;
+}
+
+function clear_all_entries(): string
+{
+    $backup = backup_entries_file();
+    write_entries([]);
+    return basename($backup);
 }

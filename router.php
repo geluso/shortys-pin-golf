@@ -29,6 +29,16 @@ if ($uri === '/entry' || $uri === '/entry/') {
     return true;
 }
 
+if ($uri === '/admin' || $uri === '/admin/') {
+    require __DIR__ . '/admin.html';
+    return true;
+}
+
+if ($uri === '/api/admin' || $uri === '/api/admin/') {
+    require __DIR__ . '/api/admin.php';
+    return true;
+}
+
 if ($uri === '/' || $uri === '/index.html' || $uri === '/favicon.svg') {
     if ($uri === '/favicon.svg') {
         header('Content-Type: image/svg+xml');

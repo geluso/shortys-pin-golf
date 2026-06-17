@@ -1,19 +1,12 @@
 RewriteEngine On
 RewriteBase /shortys-pin-golf/
 
-# Avoid trailing-slash redirects into real subdirectories (api/entries/, play/, etc.)
 DirectorySlash Off
 
 # Canonical home
 RewriteRule ^index\.html$ ./ [R=301,L,QSA]
 
-# Legacy .html and .php URLs → clean paths
-RewriteRule ^(.+)\.html$ $1 [R=301,L,QSA]
-RewriteRule ^api/entries\.php$ api/entries [R=301,L]
-RewriteCond %{QUERY_STRING} (^|&)id=([0-9a-f-]+)(&|$) [NC]
-RewriteRule ^api/entry\.php$ api/entries/%2? [R=301,L]
-
-# Clean URL routing
+# Clean URL routing (internal rewrites only — no 301s back to clean paths)
 RewriteRule ^api/entries/([0-9a-f-]+)/?$ api/entry.php?id=$1 [L]
 RewriteRule ^api/entries/?$ api/entries.php [L]
 

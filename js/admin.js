@@ -1,5 +1,6 @@
 async function adminApi(path, options = {}) {
   const res = await fetch(path, {
+    cache: 'no-store',
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json' },
     ...options,

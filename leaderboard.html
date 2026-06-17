@@ -11,12 +11,16 @@
   <main class="container">
     <div id="site-header"></div>
 
+    <div class="home-play-wrap">
+      <a href="play" class="button button-play">PLAY</a>
+    </div>
+
     <div id="leaderboard"></div>
   </main>
 
   <script src="js/header.js"></script>
   <script src="js/holes.js"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/app.js?v=5"></script>
   <script>
     renderSiteHeader();
     const highlightId = new URLSearchParams(window.location.search).get('highlight');

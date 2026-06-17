@@ -16,6 +16,7 @@ function appPath(path) {
 
 async function api(path, options = {}) {
   const res = await fetch(path, {
+    cache: 'no-store',
     headers: { 'Content-Type': 'application/json' },
     ...options,
   });

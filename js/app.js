@@ -61,7 +61,7 @@ function initScoreForm({ form, tbody, messageEl, onSaved }) {
     const pin = form.pin.value.trim().slice(0, 32) || null;
 
     try {
-      const entry = await api(appPath('/api/entries'), {
+      const entry = await api(appPath('/api/entries.php'), {
         method: 'POST',
         body: JSON.stringify({ name, scores: entryScores, pin }),
       });
@@ -109,7 +109,7 @@ function initEditForm({ form, tbody, messageEl, entry }) {
     }
 
     try {
-      await api(appPath(`/api/entries/${encodeURIComponent(entry.id)}`), {
+      await api(appPath(`/api/entry.php?id=${encodeURIComponent(entry.id)}`), {
         method: 'POST',
         body: JSON.stringify(body),
       });
@@ -128,7 +128,7 @@ function initEditForm({ form, tbody, messageEl, entry }) {
 
 async function loadLeaderboard(listEl, options = {}) {
   const { highlightId, limit } = options;
-  const entries = await api(appPath('/api/entries'));
+  const entries = await api(appPath('/api/entries.php'));
 
   const sorted = entries.slice().sort((a, b) => {
     const aPlayed = holesPlayed(a.scores);
@@ -177,7 +177,7 @@ async function loadLeaderboard(listEl, options = {}) {
 
       const tdName = document.createElement('td');
       const link = document.createElement('a');
-      link.href = appPath(`/entry?id=${encodeURIComponent(entry.id)}`);
+      link.href = appPath(`/entry.html?id=${encodeURIComponent(entry.id)}`);
       link.textContent = entry.name;
       tdName.appendChild(link);
 
@@ -210,5 +210,5 @@ async function loadEntry(id) {
   if (!isValidEntryId(id)) {
     throw new Error('Invalid entry');
   }
-  return api(appPath(`/api/entries/${encodeURIComponent(id)}`));
+  return api(appPath(`/api/entry.php?id=${encodeURIComponent(id)}`));
 }

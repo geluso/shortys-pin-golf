@@ -32,8 +32,13 @@ function initScoreForm({ form, tbody, messageEl, onSaved }) {
   const scores = Array(HOLES.length).fill(null);
   const inputs = buildScoreTable(tbody, scores, () => {
     updateTotalRow(getScoresFromInputs(inputs));
+    persistDraft(form, inputs);
   });
   updateTotalRow(scores);
+  loadDraftIntoForm(form, inputs);
+
+  form.name.addEventListener('input', () => persistDraft(form, inputs));
+  form.pin.addEventListener('input', () => persistDraft(form, inputs));
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -54,6 +59,7 @@ function initScoreForm({ form, tbody, messageEl, onSaved }) {
         body: JSON.stringify({ name, scores: entryScores, pin }),
       });
       showMessage(messageEl, 'Saved!', 'success');
+      clearDraft();
       onSaved?.(entry);
     } catch (err) {
       showMessage(messageEl, err.message, 'error');
@@ -70,7 +76,6 @@ function initEditForm({ form, tbody, messageEl, entry }) {
   updateTotalRow(entry.scores);
 
   form.name.value = entry.name;
-  form.pin.value = '';
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -86,10 +91,6 @@ function initEditForm({ form, tbody, messageEl, entry }) {
       name,
       scores: getScoresFromInputs(inputs),
     };
-
-    const newPin = form.pin.value.trim();
-    if (newPin) body.pin = newPin;
-    if (form.clearPin?.checked) body.clearPin = true;
 
     if (entry.pin) {
       body.editPin = form.editPin?.value.trim();
@@ -109,13 +110,9 @@ function initEditForm({ form, tbody, messageEl, entry }) {
   return { inputs };
 }
 
-async function loadLeaderboard(listEl) {
+async function loadLeaderboard(listEl, options = {}) {
+  const { highlightId, limit } = options;
   const entries = await api(appPath('/api/entries'));
-
-  if (entries.length === 0) {
-    listEl.innerHTML = '<p class="empty-state">No scores yet. Be the first!</p>';
-    return;
-  }
 
   const sorted = entries.slice().sort((a, b) => {
     const aPlayed = holesPlayed(a.scores);
@@ -128,33 +125,69 @@ async function loadLeaderboard(listEl) {
     return a.name.localeCompare(b.name);
   });
 
-  const ul = document.createElement('ul');
-  ul.className = 'leaderboard-list';
+  const shown = limit ? sorted.slice(0, limit) : sorted;
 
-  sorted.forEach((entry, i) => {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.href = appPath(`/entry?id=${entry.id}`);
+  const table = document.createElement('table');
+  table.className = 'leaderboard-table';
 
-    const rank = document.createElement('span');
-    rank.className = 'leaderboard-rank';
-    rank.textContent = `${i + 1}.`;
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Balls</th>
+        <th>Delta</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
 
-    const name = document.createElement('span');
-    name.className = 'leaderboard-name';
-    name.textContent = entry.name;
+  const tbody = table.querySelector('tbody');
+  let highlightedEl = null;
 
-    const score = document.createElement('span');
-    score.className = 'leaderboard-score';
-    score.textContent = formatVsPar(entry.scores);
+  if (shown.length === 0) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 3;
+    td.className = 'leaderboard-empty';
+    td.textContent = 'No scores yet.';
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+  } else {
+    shown.forEach((entry) => {
+      const tr = document.createElement('tr');
+      if (highlightId && entry.id === highlightId) {
+        tr.className = 'leaderboard-highlight';
+      }
 
-    a.append(rank, name, score);
-    li.appendChild(a);
-    ul.appendChild(li);
-  });
+      const tdName = document.createElement('td');
+      const link = document.createElement('a');
+      link.href = appPath(`/entry?id=${entry.id}`);
+      link.textContent = entry.name;
+      tdName.appendChild(link);
+
+      const tdBalls = document.createElement('td');
+      tdBalls.className = 'leaderboard-balls';
+      tdBalls.textContent = formatVsPar(entry.scores);
+
+      const tdDelta = document.createElement('td');
+      tdDelta.className = 'leaderboard-delta';
+      tdDelta.textContent = formatDelta(entry.scores);
+
+      tr.append(tdName, tdBalls, tdDelta);
+      tbody.appendChild(tr);
+
+      if (highlightId && entry.id === highlightId) {
+        highlightedEl = tr;
+      }
+    });
+  }
 
   listEl.innerHTML = '';
-  listEl.appendChild(ul);
+  listEl.appendChild(table);
+
+  if (highlightedEl) {
+    highlightedEl.scrollIntoView({ block: 'nearest' });
+  }
 }
 
 async function loadEntry(id) {

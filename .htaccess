@@ -14,5 +14,6 @@ RewriteRule ^api/entries/([0-9a-f-]+)/?$ api/entry.php?id=$1 [L]
 RewriteRule ^api/entries/?$ api/entries.php [L]
 
 # Pages
+RewriteRule ^play/?$ play.html [L]
 RewriteRule ^leaderboard/?$ leaderboard.html [L]
 RewriteRule ^entry/?$ entry.html [L,QSA]

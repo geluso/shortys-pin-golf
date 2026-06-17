@@ -4,18 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Entry — Shorty's Pin Golf</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <main class="container">
-    <h1 id="entry-title">ENTRY</h1>
-    <p class="subtitle">Shorty's Pin Golf</p>
-
-    <nav>
-      <a href="leaderboard">← Leaderboard</a>
-      ·
-      <a href="./">New entry</a>
-    </nav>
+    <div id="site-header"></div>
 
     <p id="entry-meta" class="entry-meta"></p>
 
@@ -32,7 +26,8 @@
         <tbody id="holes-body"></tbody>
         <tfoot>
           <tr>
-            <td colspan="3">Total</td>
+            <td colspan="2" class="total-label">Total</td>
+            <td>Par 28</td>
             <td id="player-total">—</td>
           </tr>
         </tfoot>
@@ -49,16 +44,6 @@
         <small>This entry is PIN-protected.</small>
       </div>
 
-      <div class="form-row">
-        <label for="pin">New PIN (optional)</label>
-        <input type="password" id="pin" name="pin" inputmode="numeric" autocomplete="new-password">
-        <small>Leave blank to keep current PIN.</small>
-      </div>
-
-      <div class="form-row" id="remove-pin-row" hidden>
-        <label><input type="checkbox" id="clearPin" name="clearPin"> Remove PIN protection</label>
-      </div>
-
       <div class="form-actions">
         <button type="submit" class="primary">Save changes</button>
         <a href="leaderboard" class="button">Leaderboard</a>
@@ -68,25 +53,26 @@
     </form>
   </main>
 
+  <script src="js/header.js"></script>
   <script src="js/holes.js"></script>
   <script src="js/score-input.js"></script>
   <script src="js/app.js"></script>
   <script>
+    renderSiteHeader();
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
 
     if (!id) {
-      window.location.href = './';
+      window.location.href = 'play';
     } else {
       loadEntry(id)
         .then((entry) => {
-          document.getElementById('entry-title').textContent = entry.name.toUpperCase();
           document.getElementById('entry-meta').textContent =
-            `Saved ${new Date(entry.updatedAt).toLocaleString()} · ${formatVsPar(entry.scores)}`;
+            `${entry.name} · saved ${new Date(entry.updatedAt).toLocaleString()} · ${formatVsPar(entry.scores)} balls`;
 
           if (entry.pin) {
             document.getElementById('edit-pin-row').hidden = false;
-            document.getElementById('remove-pin-row').hidden = false;
           }
 
           initEditForm({

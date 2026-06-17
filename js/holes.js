@@ -22,10 +22,13 @@ function holesPlayed(scores) {
 
 function formatVsPar(scores) {
   const total = totalBalls(scores);
-  const played = holesPlayed(scores);
-  if (played === 0) return '—';
-  const diff = total - TOTAL_PAR;
-  if (played < HOLES.length) return `${total} (${played}/9)`;
-  if (diff === 0) return `${total} (E)`;
-  return diff > 0 ? `${total} (+${diff})` : `${total} (${diff})`;
+  if (holesPlayed(scores) === 0) return '—';
+  return `${total}`;
+}
+
+function formatDelta(scores) {
+  if (holesPlayed(scores) < HOLES.length) return '—';
+  const diff = totalBalls(scores) - TOTAL_PAR;
+  if (diff === 0) return '0';
+  return diff > 0 ? `+${diff}` : `${diff}`;
 }

@@ -1,4 +1,4 @@
-const MAX_BALLS = 5;
+const MAX_BALLS = 7;
 
 function nextScore(current) {
   if (current == null) return 1;

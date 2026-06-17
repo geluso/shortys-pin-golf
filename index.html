@@ -4,74 +4,43 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Shorty's Pin Golf</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <main class="container">
-    <h1>SHORTY'S PIN GOLF</h1>
-    <p class="subtitle">Good shots &amp; big laughs!</p>
+    <div id="site-header"></div>
 
-    <nav><a href="leaderboard">Leaderboard →</a></nav>
+    <div class="scoring-help">
+      <p>
+        <b>How to play pin golf:</b> Enter how many balls it took you to reach par score.
+        Add penalty balls if you did not reach par.
+      </p>
+      <p>+1 penalty ball if you scored 50% of par.</p>
+      <p>+2 penalty balls if you scored 25% of par.</p>
+      <p>+3 penalty balls if you scored below 25% of par.</p>
+      <p>Don't upload photos. But show some if people call you a liar.</p>
+    </div>
 
-    <p class="scoring-help">
-      Each hole has a target score and a par (number of balls). Enter how many
-      balls it took you to reach the target—not the pinball points. Tap the
-      score box to cycle through 1–5, or use +/−. Lowest total wins. Course
-      par is 31 balls.
-    </p>
+    <div class="home-play-wrap">
+      <a href="play" class="button button-play">PLAY</a>
+    </div>
 
-    <form id="score-form">
-      <table>
-        <thead>
-          <tr>
-            <th class="hole-num">Hole</th>
-            <th>Hole Name</th>
-            <th>Par</th>
-            <th>Balls</th>
-          </tr>
-        </thead>
-        <tbody id="holes-body"></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="3">Total</td>
-            <td id="player-total">—</td>
-          </tr>
-        </tfoot>
-      </table>
+    <div id="leaderboard-top"></div>
 
-      <div class="form-row">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" autocomplete="name" required>
-      </div>
-
-      <div class="form-row">
-        <label for="pin">PIN (optional)</label>
-        <input type="password" id="pin" name="pin" inputmode="numeric" autocomplete="new-password">
-        <small>Set a PIN if you want only you to edit this entry later.</small>
-      </div>
-
-      <div class="form-actions">
-        <button type="submit" class="primary">Save</button>
-        <a href="leaderboard" class="button">Leaderboard</a>
-      </div>
-
-      <div id="message" class="message" hidden></div>
-    </form>
+    <div class="home-actions">
+      <a href="leaderboard" class="button button-gold">View full leaderboard</a>
+    </div>
   </main>
 
+  <script src="js/header.js"></script>
   <script src="js/holes.js"></script>
-  <script src="js/score-input.js"></script>
   <script src="js/app.js"></script>
   <script>
-    initScoreForm({
-      form: document.getElementById('score-form'),
-      tbody: document.getElementById('holes-body'),
-      messageEl: document.getElementById('message'),
-      onSaved: (entry) => {
-        setTimeout(() => {
-          window.location.href = `entry?id=${entry.id}`;
-        }, 600);
-      },
+    renderSiteHeader();
+    loadLeaderboard(document.getElementById('leaderboard-top'), { limit: 5 }).catch(() => {
+      document.getElementById('leaderboard-top').innerHTML =
+        '<p class="empty-state">Could not load scores.</p>';
     });
   </script>
 </body>

@@ -14,6 +14,11 @@ if ($uri === '/api/entries' || $uri === '/api/entries/') {
     return true;
 }
 
+if ($uri === '/play' || $uri === '/play/') {
+    require __DIR__ . '/play.html';
+    return true;
+}
+
 if ($uri === '/leaderboard' || $uri === '/leaderboard/') {
     require __DIR__ . '/leaderboard.html';
     return true;
@@ -24,7 +29,12 @@ if ($uri === '/entry' || $uri === '/entry/') {
     return true;
 }
 
-if ($uri === '/' || $uri === '/index.html') {
+if ($uri === '/' || $uri === '/index.html' || $uri === '/favicon.svg') {
+    if ($uri === '/favicon.svg') {
+        header('Content-Type: image/svg+xml');
+        readfile(__DIR__ . '/favicon.svg');
+        return true;
+    }
     require __DIR__ . '/index.html';
     return true;
 }

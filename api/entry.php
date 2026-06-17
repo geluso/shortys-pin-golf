@@ -10,7 +10,7 @@ try {
     if ($method === 'GET') {
         foreach (read_entries() as $entry) {
             if (($entry['id'] ?? '') === $id) {
-                json_response($entry);
+                json_response(public_entry($entry));
             }
         }
         json_response(['error' => 'Not found'], 404);
@@ -33,14 +33,17 @@ try {
 
         if (!empty($entry['pin'])) {
             $editPin = normalize_pin($body['editPin'] ?? null);
-            if ($editPin !== $entry['pin']) {
+            if ($editPin === null || !verify_pin($editPin, $entry['pin'])) {
                 json_response(['error' => 'Wrong PIN'], 403);
+            }
+            if (!is_pin_hash($entry['pin'])) {
+                $entry['pin'] = hash_pin($editPin);
             }
         }
 
         $entries[$idx] = $entry;
         write_entries($entries);
-        json_response($entry);
+        json_response(public_entry($entry));
     }
 
     json_response(['error' => 'Method not allowed'], 405);

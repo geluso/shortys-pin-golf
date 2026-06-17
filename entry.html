@@ -40,8 +40,8 @@
 
       <div class="form-row" id="edit-pin-row" hidden>
         <label for="editPin">PIN to save changes</label>
-        <input type="password" id="editPin" name="editPin" inputmode="numeric" maxlength="32" autocomplete="current-password">
-        <small>This entry is PIN-protected.</small>
+        <input type="password" id="editPin" name="editPin" maxlength="32" autocomplete="current-password">
+        <small>This entry is protected.</small>
       </div>
 
       <div class="form-actions">
@@ -72,7 +72,7 @@
           document.getElementById('entry-meta').textContent =
             `${entry.name} · saved ${new Date(entry.updatedAt).toLocaleString()} · ${formatVsPar(entry.scores)} balls`;
 
-          if (entry.pin) {
+          if (entry.hasPin) {
             document.getElementById('edit-pin-row').hidden = false;
           }
 

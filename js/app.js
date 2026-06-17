@@ -30,6 +30,19 @@ function showMessage(el, text, type) {
   el.hidden = false;
 }
 
+function showSavedMessage(el, entry) {
+  el.innerHTML = '';
+  el.className = 'message success';
+  el.hidden = false;
+  el.append('Saved! ');
+
+  const link = document.createElement('a');
+  link.href = appPath(`/leaderboard?highlight=${encodeURIComponent(entry.id)}`);
+  link.textContent = 'See leaderboard';
+  link.className = 'message-link';
+  el.appendChild(link);
+}
+
 function hideMessage(el) {
   el.hidden = true;
 }
@@ -65,7 +78,7 @@ function initScoreForm({ form, tbody, messageEl, onSaved }) {
         method: 'POST',
         body: JSON.stringify({ name, scores: entryScores, pin }),
       });
-      showMessage(messageEl, 'Saved!', 'success');
+      showSavedMessage(messageEl, entry);
       clearDraft();
       onSaved?.(entry);
     } catch (err) {
@@ -104,7 +117,7 @@ function initEditForm({ form, tbody, messageEl, entry }) {
       scores: getScoresFromInputs(inputs),
     };
 
-    if (entry.pin) {
+    if (entry.hasPin) {
       body.editPin = form.editPin?.value.trim().slice(0, 32);
     }
 

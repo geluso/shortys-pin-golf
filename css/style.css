@@ -299,6 +299,16 @@ a.button:active {
   background: #f0fff0;
 }
 
+.message-link {
+  color: #0066cc;
+  font-weight: bold;
+}
+
+.message-link:hover,
+.message-link:visited {
+  color: #0066cc;
+}
+
 .leaderboard-table {
   width: 100%;
 }

@@ -121,6 +121,50 @@ function normalize_pin($pin): ?string
     return $pin;
 }
 
+function is_pin_hash(string $value): bool
+{
+    return str_starts_with($value, '$2y$')
+        || str_starts_with($value, '$2a$')
+        || str_starts_with($value, '$argon2');
+}
+
+function hash_pin(string $pin): string
+{
+    return password_hash($pin, PASSWORD_DEFAULT);
+}
+
+function verify_pin(string $pin, string $stored): bool
+{
+    if (is_pin_hash($stored)) {
+        return password_verify($pin, $stored);
+    }
+
+    return hash_equals($stored, $pin);
+}
+
+function store_pin($pin): ?string
+{
+    $plain = normalize_pin($pin);
+    if ($plain === null) {
+        return null;
+    }
+
+    return hash_pin($plain);
+}
+
+function public_entry(array $entry): array
+{
+    $entry['hasPin'] = !empty($entry['pin']);
+    unset($entry['pin']);
+
+    return $entry;
+}
+
+function public_entries(array $entries): array
+{
+    return array_map('public_entry', $entries);
+}
+
 function normalize_id(string $id): string
 {
     $id = strtolower(trim($id));

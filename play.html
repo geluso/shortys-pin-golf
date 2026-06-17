@@ -38,7 +38,7 @@
 
       <div class="form-row">
         <label for="pin">PIN (optional)</label>
-        <input type="password" id="pin" name="pin" inputmode="numeric" maxlength="32" autocomplete="new-password">
+        <input type="password" id="pin" name="pin" maxlength="32" autocomplete="new-password">
         <small>Set a PIN if you want only you to edit this entry later.</small>
       </div>
 
@@ -55,18 +55,13 @@
   <script src="js/score-input.js"></script>
   <script src="js/input-guard.js"></script>
   <script src="js/draft.js"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/app.js?v=4"></script>
   <script>
     renderSiteHeader();
     initScoreForm({
       form: document.getElementById('score-form'),
       tbody: document.getElementById('holes-body'),
       messageEl: document.getElementById('message'),
-      onSaved: (entry) => {
-        setTimeout(() => {
-          window.location.href = `leaderboard?highlight=${entry.id}`;
-        }, 600);
-      },
     });
   </script>
 </body>

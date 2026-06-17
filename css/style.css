@@ -35,7 +35,7 @@ body {
 .container {
   max-width: 640px;
   margin: 2rem auto;
-  padding: 1.5rem;
+  padding: 1rem 2rem;
   background: #fff;
   border: var(--border);
 }
@@ -97,7 +97,6 @@ h1 {
 .site-footer {
   margin-top: 2rem;
   text-align: right;
-  font-size: 0.75rem;
   color: #555;
 }
 
@@ -404,10 +403,6 @@ button.button-danger:active {
 }
 
 @media (min-width: 480px) {
-  .container {
-    padding: 2rem;
-  }
-
   table {
     font-size: 0.875rem;
   }

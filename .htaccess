@@ -1,7 +1,13 @@
+Options -Indexes
+DirectoryIndex index.html
+
 RewriteEngine On
 RewriteBase /shortys-pin-golf/
 
 DirectorySlash Off
+
+# Bare /shortys-pin-golf (no trailing slash) → homepage
+RedirectMatch 301 ^/shortys-pin-golf$ /shortys-pin-golf/
 
 # Canonical home
 RewriteRule ^index\.html$ ./ [R=301,L,QSA]

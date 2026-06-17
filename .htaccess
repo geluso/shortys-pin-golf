@@ -24,6 +24,7 @@ RewriteRule ^index\.html$ ./ [R=301,L,QSA]
 # Clean URL routing (internal rewrites only — no 301s back to clean paths)
 RewriteRule ^api/entries/([0-9a-f-]+)/?$ api/entry.php?id=$1 [L]
 RewriteRule ^api/entries/?$ api/entries.php [L]
+RewriteRule ^api/session/?$ api/session.php [L]
 
 RewriteRule ^play/?$ play.html [L]
 RewriteRule ^leaderboard/?$ leaderboard.html [L]

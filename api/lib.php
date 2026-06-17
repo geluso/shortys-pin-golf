@@ -5,6 +5,11 @@ function data_file(): string
     return dirname(__DIR__) . '/data/entries.json';
 }
 
+function sessions_file(): string
+{
+    return dirname(__DIR__) . '/data/sessions.json';
+}
+
 function data_dir(): string
 {
     return dirname(data_file());
@@ -54,6 +59,147 @@ function write_entries(array $entries): void
         mkdir($dir, 0755, true);
     }
     file_put_contents(data_file(), json_encode($entries, JSON_PRETTY_PRINT), LOCK_EX);
+}
+
+function read_sessions(): array
+{
+    $file = sessions_file();
+    if (!file_exists($file)) {
+        return [];
+    }
+    $data = json_decode(file_get_contents($file), true);
+    return is_array($data) ? $data : [];
+}
+
+function write_sessions(array $sessions): void
+{
+    $dir = data_dir();
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+    file_put_contents(sessions_file(), json_encode($sessions, JSON_PRETTY_PRINT), LOCK_EX);
+}
+
+const SESSION_COOKIE = 'shortys_pin_golf_session';
+const SESSION_MAX_AGE = 2592000; // 30 days
+
+function session_id_from_cookie(): ?string
+{
+    $id = $_COOKIE[SESSION_COOKIE] ?? '';
+    $id = strtolower(trim((string) $id));
+    if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $id)) {
+        return null;
+    }
+    return $id;
+}
+
+function set_session_cookie(string $id): void
+{
+    setcookie(SESSION_COOKIE, $id, [
+        'expires' => time() + SESSION_MAX_AGE,
+        'path' => '/',
+        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function clear_session_cookie(): void
+{
+    setcookie(SESSION_COOKIE, '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function normalize_draft_scores(array $scores): array
+{
+    $out = array_slice($scores, 0, 9);
+    while (count($out) < 9) {
+        $out[] = null;
+    }
+    return array_map(function ($s) {
+        if ($s === null || $s === '') {
+            return null;
+        }
+        $n = (int) $s;
+        if ($n < 1 || $n > 99) {
+            return null;
+        }
+        return $n;
+    }, $out);
+}
+
+function normalize_draft(array $body): array
+{
+    $name = trim((string) ($body['name'] ?? ''));
+    $name = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $name) ?? '';
+    if ($name !== '' && looks_malicious_text($name)) {
+        throw new InvalidArgumentException('Rejected');
+    }
+    if (function_exists('mb_substr')) {
+        $name = mb_substr($name, 0, 64);
+    } else {
+        $name = substr($name, 0, 64);
+    }
+
+    $pin = trim((string) ($body['pin'] ?? ''));
+    if (strlen($pin) > 32) {
+        throw new InvalidArgumentException('PIN too long');
+    }
+
+    return [
+        'name' => $name,
+        'pin' => $pin,
+        'scores' => normalize_draft_scores($body['scores'] ?? []),
+        'updatedAt' => iso_now(),
+    ];
+}
+
+function read_user_session(): ?array
+{
+    $id = session_id_from_cookie();
+    if ($id === null) {
+        return null;
+    }
+    $sessions = read_sessions();
+    if (!isset($sessions[$id]) || !is_array($sessions[$id])) {
+        return null;
+    }
+    return $sessions[$id];
+}
+
+function save_user_session(array $draft): array
+{
+    $id = session_id_from_cookie();
+    if ($id === null) {
+        $id = new_id();
+        set_session_cookie($id);
+    }
+
+    $sessions = read_sessions();
+    $sessions[$id] = $draft;
+    write_sessions($sessions);
+
+    return ['id' => $id, 'draft' => $draft];
+}
+
+function delete_user_session(): void
+{
+    $id = session_id_from_cookie();
+    if ($id === null) {
+        return;
+    }
+
+    $sessions = read_sessions();
+    if (isset($sessions[$id])) {
+        unset($sessions[$id]);
+        write_sessions($sessions);
+    }
+    clear_session_cookie();
 }
 
 function normalize_scores(array $scores): array

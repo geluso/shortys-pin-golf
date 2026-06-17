@@ -12,6 +12,13 @@ else
   echo "data/entries.json already exists"
 fi
 
+if [[ ! -f "$ROOT/data/sessions.json" ]]; then
+  printf '{}\n' > "$ROOT/data/sessions.json"
+  echo "Created data/sessions.json"
+else
+  echo "data/sessions.json already exists"
+fi
+
 if [[ ! -f "$ROOT/data/.htaccess" ]]; then
   printf 'Deny from all\n' > "$ROOT/data/.htaccess"
   echo "Created data/.htaccess"
@@ -20,6 +27,6 @@ else
 fi
 
 chmod 755 "$ROOT/data"
-chmod 644 "$ROOT/data/entries.json" "$ROOT/data/.htaccess"
+chmod 644 "$ROOT/data/entries.json" "$ROOT/data/sessions.json" "$ROOT/data/.htaccess"
 
 echo "Done. data/ is ready for score storage."

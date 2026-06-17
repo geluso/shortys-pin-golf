@@ -39,6 +39,11 @@ if ($uri === '/api/admin' || $uri === '/api/admin/') {
     return true;
 }
 
+if ($uri === '/api/session' || $uri === '/api/session/') {
+    require __DIR__ . '/api/session.php';
+    return true;
+}
+
 if ($uri === '/' || $uri === '/index.html' || $uri === '/favicon.svg') {
     if ($uri === '/favicon.svg') {
         header('Content-Type: image/svg+xml');

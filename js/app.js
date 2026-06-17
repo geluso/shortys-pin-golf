@@ -48,14 +48,14 @@ function hideMessage(el) {
   el.hidden = true;
 }
 
-function initScoreForm({ form, tbody, messageEl, onSaved }) {
+async function initScoreForm({ form, tbody, messageEl, onSaved }) {
   const scores = Array(HOLES.length).fill(null);
   const inputs = buildScoreTable(tbody, scores, () => {
     updateTotalRow(getScoresFromInputs(inputs));
     persistDraft(form, inputs);
   });
   updateTotalRow(scores);
-  loadDraftIntoForm(form, inputs);
+  await loadDraftIntoForm(form, inputs);
 
   form.name.addEventListener('input', () => persistDraft(form, inputs));
   form.pin.addEventListener('input', () => persistDraft(form, inputs));

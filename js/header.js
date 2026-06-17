@@ -12,4 +12,11 @@ function renderSiteHeader() {
     <h1><a href="${home}" class="site-title-link">SHORTY'S PIN GOLF</a></h1>
     <p class="subtitle">Eat a fucking hotdog.</p>
   `;
+  renderSiteFooter();
+}
+
+function renderSiteFooter() {
+  const el = document.getElementById('site-footer');
+  if (!el) return;
+  el.textContent = '(C) Madison & Steve';
 }

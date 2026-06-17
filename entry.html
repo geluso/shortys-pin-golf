@@ -46,7 +46,7 @@
 
       <div class="form-actions">
         <button type="submit" class="primary">Save changes</button>
-        <a href="leaderboard.html" class="button">Leaderboard</a>
+        <a href="leaderboard/index.php" class="button">Leaderboard</a>
       </div>
 
       <div id="message" class="message" hidden></div>
@@ -65,7 +65,7 @@
     const id = params.get('id');
 
     if (!id || !isValidEntryId(id)) {
-      window.location.href = 'play.html';
+      window.location.href = 'play/index.php';
     } else {
       loadEntry(id)
         .then((entry) => {
@@ -90,7 +90,7 @@
           p.className = 'empty-state';
           p.textContent = 'Entry not found. ';
           const a = document.createElement('a');
-          a.href = 'leaderboard.html';
+          a.href = 'leaderboard/index.php';
           a.textContent = 'Back to leaderboard';
           p.appendChild(a);
           container.appendChild(p);

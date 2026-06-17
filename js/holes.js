@@ -1,0 +1,31 @@
+const HOLES = [
+  { num: 1, name: 'Bobby Orr Power play', target: '75,000', par: 3 },
+  { num: 2, name: 'Godzilla', target: '50mil', par: 3 },
+  { num: 3, name: 'Star Wars FOTE', target: '100 mil', par: 3 },
+  { num: 4, name: 'Medieval Madness', target: '5mil', par: 3 },
+  { num: 5, name: 'Centaur', target: '500k', par: 5 },
+  { num: 6, name: 'Cactus canyon', target: '10mil', par: 3 },
+  { num: 7, name: 'King Kong', target: '80mil', par: 3 },
+  { num: 8, name: 'D&D', target: '120mil', par: 3 },
+  { num: 9, name: 'Target alpha', target: '10k', par: 2 },
+];
+
+const TOTAL_PAR = HOLES.reduce((sum, h) => sum + h.par, 0);
+
+function totalBalls(scores) {
+  return scores.reduce((sum, s) => sum + (s ?? 0), 0);
+}
+
+function holesPlayed(scores) {
+  return scores.filter((s) => s != null).length;
+}
+
+function formatVsPar(scores) {
+  const total = totalBalls(scores);
+  const played = holesPlayed(scores);
+  if (played === 0) return '—';
+  const diff = total - TOTAL_PAR;
+  if (played < HOLES.length) return `${total} (${played}/9)`;
+  if (diff === 0) return `${total} (E)`;
+  return diff > 0 ? `${total} (+${diff})` : `${total} (${diff})`;
+}

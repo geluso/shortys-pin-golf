@@ -1,0 +1,18 @@
+RewriteEngine On
+
+# If this app lives in a subdirectory, uncomment and set your path:
+# RewriteBase /pin-golf/
+
+# Send old .html and .php URLs to clean paths
+RewriteRule ^index\.html$ ./ [R=301,L,QSA]
+RewriteRule ^(.+)\.html$ $1 [R=301,L,QSA]
+RewriteRule ^api/entries\.php$ api/entries [R=301,L]
+RewriteRule ^api/entry\.php$ api/entry [R=301,L,QSA]
+
+# API
+RewriteRule ^api/entries/([0-9a-f-]+)/?$ api/entry.php?id=$1 [L]
+RewriteRule ^api/entries/?$ api/entries.php [L]
+
+# Pages
+RewriteRule ^leaderboard/?$ leaderboard.html [L]
+RewriteRule ^entry/?$ entry.html [L,QSA]

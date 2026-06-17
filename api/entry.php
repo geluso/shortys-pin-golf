@@ -2,10 +2,7 @@
 
 require __DIR__ . '/lib.php';
 
-$id = trim((string) ($_GET['id'] ?? ''));
-if ($id === '') {
-    json_response(['error' => 'ID required'], 400);
-}
+$id = normalize_id((string) ($_GET['id'] ?? ''));
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
@@ -28,23 +25,17 @@ try {
         }
 
         $entry = $entries[$idx];
-        if (!empty($entry['pin']) && ($body['editPin'] ?? '') !== $entry['pin']) {
-            json_response(['error' => 'Wrong PIN'], 403);
-        }
-
-        $name = trim((string) ($body['name'] ?? ''));
-        if ($name === '') {
-            json_response(['error' => 'Name required'], 400);
-        }
+        $name = normalize_name((string) ($body['name'] ?? ''));
 
         $entry['name'] = $name;
         $entry['scores'] = normalize_scores($body['scores'] ?? []);
         $entry['updatedAt'] = iso_now();
 
-        if (!empty($body['clearPin'])) {
-            $entry['pin'] = null;
-        } elseif (!empty($body['pin'])) {
-            $entry['pin'] = (string) $body['pin'];
+        if (!empty($entry['pin'])) {
+            $editPin = normalize_pin($body['editPin'] ?? null);
+            if ($editPin !== $entry['pin']) {
+                json_response(['error' => 'Wrong PIN'], 403);
+            }
         }
 
         $entries[$idx] = $entry;

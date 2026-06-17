@@ -33,12 +33,12 @@
 
       <div class="form-row">
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" autocomplete="name" required>
+        <input type="text" id="name" name="name" autocomplete="name" maxlength="64" required>
       </div>
 
       <div class="form-row">
         <label for="pin">PIN (optional)</label>
-        <input type="password" id="pin" name="pin" inputmode="numeric" autocomplete="new-password">
+        <input type="password" id="pin" name="pin" inputmode="numeric" maxlength="32" autocomplete="new-password">
         <small>Set a PIN if you want only you to edit this entry later.</small>
       </div>
 
@@ -53,6 +53,7 @@
   <script src="js/header.js"></script>
   <script src="js/holes.js"></script>
   <script src="js/score-input.js"></script>
+  <script src="js/input-guard.js"></script>
   <script src="js/draft.js"></script>
   <script src="js/app.js"></script>
   <script>

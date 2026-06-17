@@ -4,6 +4,12 @@ const APP_BASE = (() => {
   return new URL(el.src, location.origin).pathname.replace(/\/js\/app\.js$/, '');
 })();
 
+const ENTRY_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function isValidEntryId(id) {
+  return typeof id === 'string' && ENTRY_ID_RE.test(id);
+}
+
 function appPath(path) {
   return `${APP_BASE}${path}`;
 }
@@ -44,14 +50,15 @@ function initScoreForm({ form, tbody, messageEl, onSaved }) {
     e.preventDefault();
     hideMessage(messageEl);
 
-    const name = form.name.value.trim();
+    const name = form.name.value.trim().slice(0, 64);
     if (!name) {
       showMessage(messageEl, 'Enter your name.', 'error');
       return;
     }
+    if (rejectIfMalicious(name, messageEl)) return;
 
     const entryScores = getScoresFromInputs(inputs);
-    const pin = form.pin.value.trim() || null;
+    const pin = form.pin.value.trim().slice(0, 32) || null;
 
     try {
       const entry = await api(appPath('/api/entries'), {
@@ -62,7 +69,11 @@ function initScoreForm({ form, tbody, messageEl, onSaved }) {
       clearDraft();
       onSaved?.(entry);
     } catch (err) {
-      showMessage(messageEl, err.message, 'error');
+      if (err.message === 'Rejected') {
+        showMessage(messageEl, 'Nice try. Fuck off.', 'error');
+      } else {
+        showMessage(messageEl, err.message, 'error');
+      }
     }
   });
 
@@ -81,11 +92,12 @@ function initEditForm({ form, tbody, messageEl, entry }) {
     e.preventDefault();
     hideMessage(messageEl);
 
-    const name = form.name.value.trim();
+    const name = form.name.value.trim().slice(0, 64);
     if (!name) {
       showMessage(messageEl, 'Enter your name.', 'error');
       return;
     }
+    if (rejectIfMalicious(name, messageEl)) return;
 
     const body = {
       name,
@@ -93,7 +105,7 @@ function initEditForm({ form, tbody, messageEl, entry }) {
     };
 
     if (entry.pin) {
-      body.editPin = form.editPin?.value.trim();
+      body.editPin = form.editPin?.value.trim().slice(0, 32);
     }
 
     try {
@@ -103,7 +115,11 @@ function initEditForm({ form, tbody, messageEl, entry }) {
       });
       showMessage(messageEl, 'Updated!', 'success');
     } catch (err) {
-      showMessage(messageEl, err.message, 'error');
+      if (err.message === 'Rejected') {
+        showMessage(messageEl, 'Nice try. Fuck off.', 'error');
+      } else {
+        showMessage(messageEl, err.message, 'error');
+      }
     }
   });
 
@@ -155,13 +171,13 @@ async function loadLeaderboard(listEl, options = {}) {
   } else {
     shown.forEach((entry) => {
       const tr = document.createElement('tr');
-      if (highlightId && entry.id === highlightId) {
+      if (highlightId && isValidEntryId(highlightId) && entry.id === highlightId) {
         tr.className = 'leaderboard-highlight';
       }
 
       const tdName = document.createElement('td');
       const link = document.createElement('a');
-      link.href = appPath(`/entry?id=${entry.id}`);
+      link.href = appPath(`/entry?id=${encodeURIComponent(entry.id)}`);
       link.textContent = entry.name;
       tdName.appendChild(link);
 
@@ -176,7 +192,7 @@ async function loadLeaderboard(listEl, options = {}) {
       tr.append(tdName, tdBalls, tdDelta);
       tbody.appendChild(tr);
 
-      if (highlightId && entry.id === highlightId) {
+      if (highlightId && isValidEntryId(highlightId) && entry.id === highlightId) {
         highlightedEl = tr;
       }
     });
@@ -191,5 +207,8 @@ async function loadLeaderboard(listEl, options = {}) {
 }
 
 async function loadEntry(id) {
+  if (!isValidEntryId(id)) {
+    throw new Error('Invalid entry');
+  }
   return api(appPath(`/api/entries/${encodeURIComponent(id)}`));
 }

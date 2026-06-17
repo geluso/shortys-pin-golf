@@ -20,7 +20,9 @@
   <script>
     renderSiteHeader();
     const highlightId = new URLSearchParams(window.location.search).get('highlight');
-    loadLeaderboard(document.getElementById('leaderboard'), { highlightId }).catch(() => {
+    loadLeaderboard(document.getElementById('leaderboard'), {
+      highlightId: isValidEntryId(highlightId) ? highlightId : null,
+    }).catch(() => {
       document.getElementById('leaderboard').innerHTML =
         '<p class="empty-state">Could not load scores.</p>';
     });

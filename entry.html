@@ -35,12 +35,12 @@
 
       <div class="form-row">
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" autocomplete="name" required>
+        <input type="text" id="name" name="name" autocomplete="name" maxlength="64" required>
       </div>
 
       <div class="form-row" id="edit-pin-row" hidden>
         <label for="editPin">PIN to save changes</label>
-        <input type="password" id="editPin" name="editPin" inputmode="numeric" autocomplete="current-password">
+        <input type="password" id="editPin" name="editPin" inputmode="numeric" maxlength="32" autocomplete="current-password">
         <small>This entry is PIN-protected.</small>
       </div>
 
@@ -56,6 +56,7 @@
   <script src="js/header.js"></script>
   <script src="js/holes.js"></script>
   <script src="js/score-input.js"></script>
+  <script src="js/input-guard.js"></script>
   <script src="js/app.js"></script>
   <script>
     renderSiteHeader();
@@ -63,7 +64,7 @@
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
 
-    if (!id) {
+    if (!id || !isValidEntryId(id)) {
       window.location.href = 'play';
     } else {
       loadEntry(id)
@@ -83,8 +84,16 @@
           });
         })
         .catch(() => {
-          document.querySelector('.container').innerHTML =
-            '<p class="empty-state">Entry not found. <a href="leaderboard">Back to leaderboard</a></p>';
+          const container = document.querySelector('.container');
+          container.replaceChildren();
+          const p = document.createElement('p');
+          p.className = 'empty-state';
+          p.textContent = 'Entry not found. ';
+          const a = document.createElement('a');
+          a.href = 'leaderboard';
+          a.textContent = 'Back to leaderboard';
+          p.appendChild(a);
+          container.appendChild(p);
         });
     }
   </script>

@@ -11,17 +11,15 @@ try {
 
     if ($method === 'POST') {
         $body = read_json_body();
-        $name = trim((string) ($body['name'] ?? ''));
-        if ($name === '') {
-            json_response(['error' => 'Name required'], 400);
-        }
+        $name = normalize_name((string) ($body['name'] ?? ''));
+        $pin = normalize_pin($body['pin'] ?? null);
 
         $now = iso_now();
         $entry = [
             'id' => new_id(),
             'name' => $name,
             'scores' => normalize_scores($body['scores'] ?? []),
-            'pin' => !empty($body['pin']) ? (string) $body['pin'] : null,
+            'pin' => $pin,
             'createdAt' => $now,
             'updatedAt' => $now,
         ];

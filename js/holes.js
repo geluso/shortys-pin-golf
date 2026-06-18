@@ -69,7 +69,6 @@ function formatDelta(scores) {
   const played = holesPlayed(scores);
   if (played === 0) return '—';
   const diff = totalBalls(scores) - parPlayed(scores);
-  const formatted = diff === 0 ? '0' : (diff > 0 ? `+${diff}` : `${diff}`);
-  if (played < HOLES.length) return `${formatted}*`;
-  return formatted;
+  if (diff === 0) return '0';
+  return diff > 0 ? `+${diff}` : `${diff}`;
 }

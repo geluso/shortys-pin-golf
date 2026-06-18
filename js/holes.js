@@ -20,8 +20,31 @@ function holesPlayed(scores) {
   return scores.filter((s) => s != null).length;
 }
 
+function entryNameKey(name) {
+  return name.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function entryBeats(a, b) {
+  const aPlayed = holesPlayed(a.scores);
+  const bPlayed = holesPlayed(b.scores);
+  if (aPlayed !== bPlayed) return aPlayed > bPlayed;
+  return totalBalls(a.scores) < totalBalls(b.scores);
+}
+
+function foldLeaderboardEntries(entries) {
+  const bestByName = new Map();
+  for (const entry of entries) {
+    const key = entryNameKey(entry.name);
+    const existing = bestByName.get(key);
+    if (!existing || entryBeats(entry, existing)) {
+      bestByName.set(key, entry);
+    }
+  }
+  return [...bestByName.values()];
+}
+
 function sortLeaderboardEntries(entries) {
-  return entries.slice().sort((a, b) => {
+  return foldLeaderboardEntries(entries).sort((a, b) => {
     const aPlayed = holesPlayed(a.scores);
     const bPlayed = holesPlayed(b.scores);
     if (aPlayed !== bPlayed) return bPlayed - aPlayed;

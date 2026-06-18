@@ -351,6 +351,82 @@ function find_entry_index(array $entries, string $id): int
     return -1;
 }
 
+function entry_name_key(string $name): string
+{
+    return strtolower(preg_replace('/\s+/u', ' ', trim($name)) ?? '');
+}
+
+function holes_played(array $scores): int
+{
+    return count(array_filter($scores, fn($s) => $s !== null));
+}
+
+function total_balls(array $scores): int
+{
+    return array_sum(array_map(fn($s) => $s ?? 0, $scores));
+}
+
+function entry_beats(array $candidate, array $incumbent): bool
+{
+    $cPlayed = holes_played($candidate['scores'] ?? []);
+    $iPlayed = holes_played($incumbent['scores'] ?? []);
+    if ($cPlayed !== $iPlayed) {
+        return $cPlayed > $iPlayed;
+    }
+
+    return total_balls($candidate['scores'] ?? []) < total_balls($incumbent['scores'] ?? []);
+}
+
+function entries_same_rank(array $a, array $b): bool
+{
+    $aScores = $a['scores'] ?? [];
+    $bScores = $b['scores'] ?? [];
+
+    return holes_played($aScores) === holes_played($bScores)
+        && total_balls($aScores) === total_balls($bScores);
+}
+
+function find_entries_by_name(array $entries, string $name): array
+{
+    $key = entry_name_key($name);
+    $matches = [];
+
+    foreach ($entries as $i => $entry) {
+        if (entry_name_key((string) ($entry['name'] ?? '')) === $key) {
+            $matches[] = ['index' => $i, 'entry' => $entry];
+        }
+    }
+
+    return $matches;
+}
+
+function best_entry_match(array $matches): ?array
+{
+    if ($matches === []) {
+        return null;
+    }
+
+    $best = $matches[0];
+    foreach ($matches as $match) {
+        if (entry_beats($match['entry'], $best['entry'])) {
+            $best = $match;
+        }
+    }
+
+    return $best;
+}
+
+function remove_entry_indices(array $entries, array $indices): array
+{
+    $remove = array_values(array_unique($indices));
+    rsort($remove, SORT_NUMERIC);
+    foreach ($remove as $idx) {
+        array_splice($entries, $idx, 1);
+    }
+
+    return $entries;
+}
+
 function start_session(): void
 {
     if (session_status() === PHP_SESSION_NONE) {

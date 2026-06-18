@@ -216,6 +216,12 @@ async function loadLeaderboard(listEl, options = {}) {
   }
 
   listEl.innerHTML = '';
+  if (!limit) {
+    const note = document.createElement('p');
+    note.className = 'leaderboard-note';
+    note.textContent = 'An asterisk by a Delta score means the player has not played all holes.';
+    listEl.appendChild(note);
+  }
   listEl.appendChild(table);
 
   if (highlightedEl) {

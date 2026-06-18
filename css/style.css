@@ -431,6 +431,11 @@ a.button:active {
   width: 100%;
 }
 
+.leaderboard-note {
+  text-align: left;
+  margin: 0 0 1rem;
+}
+
 .leaderboard-table th {
   font-weight: normal;
   text-transform: none;

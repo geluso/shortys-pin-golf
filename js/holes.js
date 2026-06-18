@@ -61,9 +61,15 @@ function formatVsPar(scores) {
   return `${total}`;
 }
 
+function parPlayed(scores) {
+  return scores.reduce((sum, s, i) => sum + (s != null ? HOLES[i].par : 0), 0);
+}
+
 function formatDelta(scores) {
-  if (holesPlayed(scores) < HOLES.length) return '—';
-  const diff = totalBalls(scores) - TOTAL_PAR;
-  if (diff === 0) return '0';
-  return diff > 0 ? `+${diff}` : `${diff}`;
+  const played = holesPlayed(scores);
+  if (played === 0) return '—';
+  const diff = totalBalls(scores) - parPlayed(scores);
+  const formatted = diff === 0 ? '0' : (diff > 0 ? `+${diff}` : `${diff}`);
+  if (played < HOLES.length) return `${formatted}*`;
+  return formatted;
 }

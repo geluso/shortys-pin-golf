@@ -12,7 +12,7 @@
     <div id="site-header"></div>
 
     <div class="home-play-wrap">
-      <a href="play" class="button button-play">PLAY</a>
+      <a href="play.html" class="button button-play">PLAY</a>
     </div>
 
     <div id="leaderboard"></div>
@@ -21,9 +21,10 @@
 
   <script src="js/header.js"></script>
   <script src="js/holes.js"></script>
+  <script src="js/qrcode.min.js"></script>
   <script src="js/app.js?v=5"></script>
   <script>
-    renderSiteHeader();
+    renderSiteHeader({ qr: true });
     const highlightId = new URLSearchParams(window.location.search).get('highlight');
     loadLeaderboard(document.getElementById('leaderboard'), {
       highlightId: isValidEntryId(highlightId) ? highlightId : null,

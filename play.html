@@ -55,15 +55,16 @@
   <script src="js/holes.js"></script>
   <script src="js/score-input.js"></script>
   <script src="js/input-guard.js"></script>
+  <script src="js/qrcode.min.js"></script>
   <script src="js/draft.js?v=2"></script>
   <script src="js/app.js?v=6"></script>
   <script>
-    renderSiteHeader();
+    renderSiteHeader({ qr: true });
     initScoreForm({
       form: document.getElementById('score-form'),
       tbody: document.getElementById('holes-body'),
       messageEl: document.getElementById('message'),
-    });
+    }).catch((err) => console.error('initScoreForm failed', err));
   </script>
 </body>
 </html>

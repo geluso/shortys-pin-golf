@@ -59,8 +59,8 @@ function applyDraftToForm(form, inputs, draft) {
   if (!draft) return;
   if (draft.name && looksMaliciousText(draft.name)) return;
 
-  if (draft.name) form.name.value = draft.name;
-  if (draft.pin) form.pin.value = draft.pin;
+  if (draft.name) form.elements.namedItem('name').value = draft.name;
+  if (draft.pin) form.elements.namedItem('pin').value = draft.pin;
 
   draft.scores?.forEach((score, i) => {
     if (inputs[i] && score != null) inputs[i].setValue(score);
@@ -112,8 +112,8 @@ function clearDraft() {
 
 function persistDraft(form, inputs) {
   const draft = {
-    name: form.name.value,
-    pin: form.pin.value,
+    name: form.elements.namedItem('name')?.value ?? '',
+    pin: form.elements.namedItem('pin')?.value ?? '',
     scores: getScoresFromInputs(inputs),
   };
 

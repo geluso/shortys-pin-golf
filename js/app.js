@@ -14,6 +14,10 @@ function appPath(path) {
   return `${APP_BASE}${path}`;
 }
 
+function pagePath(file) {
+  return `${APP_BASE}/${file}`;
+}
+
 async function api(path, options = {}) {
   const res = await fetch(path, {
     cache: 'no-store',
@@ -38,7 +42,7 @@ function showSavedMessage(el, entry) {
   el.append('Saved! ');
 
   const link = document.createElement('a');
-  link.href = appPath(`/leaderboard?highlight=${encodeURIComponent(entry.id)}`);
+  link.href = pagePath(`leaderboard.html?highlight=${encodeURIComponent(entry.id)}`);
   link.textContent = 'See leaderboard';
   link.className = 'message-link';
   el.appendChild(link);
@@ -49,6 +53,8 @@ function hideMessage(el) {
 }
 
 async function initScoreForm({ form, tbody, messageEl, onSaved }) {
+  const nameInput = form.elements.namedItem('name');
+  const pinInput = form.elements.namedItem('pin');
   const scores = Array(HOLES.length).fill(null);
   const inputs = buildScoreTable(tbody, scores, () => {
     updateTotalRow(getScoresFromInputs(inputs));
@@ -57,14 +63,14 @@ async function initScoreForm({ form, tbody, messageEl, onSaved }) {
   updateTotalRow(scores);
   await loadDraftIntoForm(form, inputs);
 
-  form.name.addEventListener('input', () => persistDraft(form, inputs));
-  form.pin.addEventListener('input', () => persistDraft(form, inputs));
+  nameInput?.addEventListener('input', () => persistDraft(form, inputs));
+  pinInput?.addEventListener('input', () => persistDraft(form, inputs));
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     hideMessage(messageEl);
 
-    const name = form.name.value.trim().slice(0, 64);
+    const name = nameInput?.value.trim().slice(0, 64) ?? '';
     if (!name) {
       showMessage(messageEl, 'Enter your name.', 'error');
       return;
@@ -72,7 +78,7 @@ async function initScoreForm({ form, tbody, messageEl, onSaved }) {
     if (rejectIfMalicious(name, messageEl)) return;
 
     const entryScores = getScoresFromInputs(inputs);
-    const pin = form.pin.value.trim().slice(0, 32) || null;
+    const pin = pinInput?.value.trim().slice(0, 32) || null;
 
     try {
       const entry = await api(appPath('/api/entries.php'), {
@@ -95,18 +101,19 @@ async function initScoreForm({ form, tbody, messageEl, onSaved }) {
 }
 
 function initEditForm({ form, tbody, messageEl, entry }) {
+  const nameInput = form.elements.namedItem('name');
   const inputs = buildScoreTable(tbody, entry.scores, () => {
     updateTotalRow(getScoresFromInputs(inputs));
   });
   updateTotalRow(entry.scores);
 
-  form.name.value = entry.name;
+  if (nameInput) nameInput.value = entry.name;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     hideMessage(messageEl);
 
-    const name = form.name.value.trim().slice(0, 64);
+    const name = nameInput?.value.trim().slice(0, 64) ?? '';
     if (!name) {
       showMessage(messageEl, 'Enter your name.', 'error');
       return;
@@ -144,16 +151,7 @@ async function loadLeaderboard(listEl, options = {}) {
   const { highlightId, limit } = options;
   const entries = await api(appPath('/api/entries.php'));
 
-  const sorted = entries.slice().sort((a, b) => {
-    const aPlayed = holesPlayed(a.scores);
-    const bPlayed = holesPlayed(b.scores);
-    const aTotal = totalBalls(a.scores);
-    const bTotal = totalBalls(b.scores);
-    if (aPlayed === HOLES.length && bPlayed !== HOLES.length) return -1;
-    if (bPlayed === HOLES.length && aPlayed !== HOLES.length) return 1;
-    if (aTotal !== bTotal) return aTotal - bTotal;
-    return a.name.localeCompare(b.name);
-  });
+  const sorted = sortLeaderboardEntries(entries);
 
   const shown = limit ? sorted.slice(0, limit) : sorted;
 
@@ -164,6 +162,7 @@ async function loadLeaderboard(listEl, options = {}) {
     <thead>
       <tr>
         <th>Name</th>
+        <th>Holes Played</th>
         <th>Balls</th>
         <th>Delta</th>
       </tr>
@@ -177,7 +176,7 @@ async function loadLeaderboard(listEl, options = {}) {
   if (shown.length === 0) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 3;
+    td.colSpan = 4;
     td.className = 'leaderboard-empty';
     td.textContent = 'No scores yet.';
     tr.appendChild(td);
@@ -191,9 +190,13 @@ async function loadLeaderboard(listEl, options = {}) {
 
       const tdName = document.createElement('td');
       const link = document.createElement('a');
-      link.href = appPath(`/entry?id=${encodeURIComponent(entry.id)}`);
+      link.href = pagePath(`entry.html?id=${encodeURIComponent(entry.id)}`);
       link.textContent = entry.name;
       tdName.appendChild(link);
+
+      const tdHoles = document.createElement('td');
+      tdHoles.className = 'leaderboard-holes';
+      tdHoles.textContent = holesPlayed(entry.scores) || '—';
 
       const tdBalls = document.createElement('td');
       tdBalls.className = 'leaderboard-balls';
@@ -203,7 +206,7 @@ async function loadLeaderboard(listEl, options = {}) {
       tdDelta.className = 'leaderboard-delta';
       tdDelta.textContent = formatDelta(entry.scores);
 
-      tr.append(tdName, tdBalls, tdDelta);
+      tr.append(tdName, tdHoles, tdBalls, tdDelta);
       tbody.appendChild(tr);
 
       if (highlightId && isValidEntryId(highlightId) && entry.id === highlightId) {

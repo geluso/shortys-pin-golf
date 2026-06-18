@@ -23,22 +23,23 @@
     </div>
 
     <div class="home-play-wrap">
-      <a href="play" class="button button-play">PLAY</a>
+      <a href="play.html" class="button button-play">PLAY</a>
     </div>
 
     <div id="leaderboard-top"></div>
 
     <div class="home-actions">
-      <a href="leaderboard" class="button button-gold">View full leaderboard</a>
+      <a href="leaderboard.html" class="button button-gold">View full leaderboard</a>
     </div>
     <div id="site-footer" class="site-footer"></div>
   </main>
 
   <script src="js/header.js"></script>
   <script src="js/holes.js"></script>
+  <script src="js/qrcode.min.js"></script>
   <script src="js/app.js?v=5"></script>
   <script>
-    renderSiteHeader();
+    renderSiteHeader({ qr: true });
     loadLeaderboard(document.getElementById('leaderboard-top'), { limit: 5 }).catch(() => {
       document.getElementById('leaderboard-top').innerHTML =
         '<p class="empty-state">Could not load scores.</p>';

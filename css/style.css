@@ -1,11 +1,12 @@
 :root {
   --stripe-width: 6em;
+  --container-stripe-width: 1.25em;
   --tone-gold: #d4920a;
   --tone-teal: #0d8fa3;
   --tone-rust: #bf3810;
   --header-bg: #555;
   --border: 1px solid #000;
-  --font: 'Courier New', Courier, monospace;
+  --font: monospace;
 }
 
 *,
@@ -38,6 +39,22 @@ body {
   padding: 1rem 2rem;
   background: #fff;
   border: var(--border);
+  overflow: hidden;
+}
+
+.container::before {
+  content: '';
+  display: block;
+  height: calc(var(--container-stripe-width) * 2);
+  margin: -1rem -2rem 1rem;
+  background: repeating-linear-gradient(
+    90deg,
+    #fff 0,
+    #fff var(--container-stripe-width),
+    var(--tone-rust) var(--container-stripe-width),
+    var(--tone-rust) calc(var(--container-stripe-width) * 2)
+  );
+  border-bottom: var(--border);
 }
 
 #site-header {
@@ -98,6 +115,80 @@ h1 {
   margin-top: 2rem;
   text-align: right;
   color: #555;
+}
+
+body.has-qr-footer {
+  padding-bottom: 3.25rem;
+}
+
+.site-footer-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  border-top: var(--border);
+  text-align: left;
+}
+
+.site-footer-copy {
+  color: #555;
+  font-size: 0.875rem;
+}
+
+.qr-fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: #000;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.qr-fab:active {
+  opacity: 0.85;
+}
+
+.qr-fab-icon {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.qr-modal[hidden] {
+  display: none;
+}
+
+.qr-modal-code {
+  padding: 0.5rem;
+  background: #fff;
+  border: var(--border);
+  line-height: 0;
+  cursor: pointer;
+}
+
+.qr-modal-code img,
+.qr-modal-code canvas {
+  display: block;
 }
 
 .scoring-help {
@@ -326,6 +417,8 @@ a.button:active {
 
 .leaderboard-table th:nth-child(2),
 .leaderboard-table th:nth-child(3),
+.leaderboard-table th:nth-child(4),
+.leaderboard-table td.leaderboard-holes,
 .leaderboard-table td.leaderboard-balls,
 .leaderboard-table td.leaderboard-delta {
   text-align: center;

@@ -11,16 +11,7 @@ async function adminApi(path, options = {}) {
 }
 
 function sortEntries(entries) {
-  return entries.slice().sort((a, b) => {
-    const aPlayed = holesPlayed(a.scores);
-    const bPlayed = holesPlayed(b.scores);
-    const aTotal = totalBalls(a.scores);
-    const bTotal = totalBalls(b.scores);
-    if (aPlayed === HOLES.length && bPlayed !== HOLES.length) return -1;
-    if (bPlayed === HOLES.length && aPlayed !== HOLES.length) return 1;
-    if (aTotal !== bTotal) return aTotal - bTotal;
-    return a.name.localeCompare(b.name);
-  });
+  return sortLeaderboardEntries(entries);
 }
 
 async function loadAdminLeaderboard(listEl) {
@@ -33,6 +24,7 @@ async function loadAdminLeaderboard(listEl) {
     <thead>
       <tr>
         <th>Name</th>
+        <th>Holes Played</th>
         <th>Balls</th>
         <th>Delta</th>
         <th></th>
@@ -46,7 +38,7 @@ async function loadAdminLeaderboard(listEl) {
   if (entries.length === 0) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 4;
+    td.colSpan = 5;
     td.className = 'leaderboard-empty';
     td.textContent = 'No scores yet.';
     tr.appendChild(td);
@@ -57,9 +49,13 @@ async function loadAdminLeaderboard(listEl) {
 
       const tdName = document.createElement('td');
       const link = document.createElement('a');
-      link.href = appPath(`/entry?id=${encodeURIComponent(entry.id)}`);
+      link.href = pagePath(`entry.html?id=${encodeURIComponent(entry.id)}`);
       link.textContent = entry.name;
       tdName.appendChild(link);
+
+      const tdHoles = document.createElement('td');
+      tdHoles.className = 'leaderboard-holes';
+      tdHoles.textContent = holesPlayed(entry.scores) || '—';
 
       const tdBalls = document.createElement('td');
       tdBalls.className = 'leaderboard-balls';
@@ -89,7 +85,7 @@ async function loadAdminLeaderboard(listEl) {
       });
       tdDelete.appendChild(deleteBtn);
 
-      tr.append(tdName, tdBalls, tdDelta, tdDelete);
+      tr.append(tdName, tdHoles, tdBalls, tdDelta, tdDelete);
       tbody.appendChild(tr);
     });
   }

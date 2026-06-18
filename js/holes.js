@@ -20,6 +20,18 @@ function holesPlayed(scores) {
   return scores.filter((s) => s != null).length;
 }
 
+function sortLeaderboardEntries(entries) {
+  return entries.slice().sort((a, b) => {
+    const aPlayed = holesPlayed(a.scores);
+    const bPlayed = holesPlayed(b.scores);
+    if (aPlayed !== bPlayed) return bPlayed - aPlayed;
+    const aTotal = totalBalls(a.scores);
+    const bTotal = totalBalls(b.scores);
+    if (aTotal !== bTotal) return aTotal - bTotal;
+    return a.name.localeCompare(b.name);
+  });
+}
+
 function formatVsPar(scores) {
   const total = totalBalls(scores);
   if (holesPlayed(scores) === 0) return '—';

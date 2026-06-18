@@ -142,6 +142,27 @@ body.has-qr-footer {
   font-size: 0.875rem;
 }
 
+.qr-footer-prompt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.qr-footer-label {
+  padding: 0;
+  background: transparent;
+  border: none;
+  font: inherit;
+  font-size: 0.875rem;
+  color: #000;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.qr-footer-label:active {
+  opacity: 0.85;
+}
+
 .qr-fab {
   display: flex;
   align-items: center;

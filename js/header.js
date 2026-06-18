@@ -82,12 +82,16 @@ function renderSiteFooter({ qr = false } = {}) {
     document.body.classList.add('has-qr-footer');
     el.className = 'site-footer site-footer-bar';
     el.innerHTML = `
-      <button type="button" class="qr-fab" aria-label="Show QR code for this page">
-        <img src="${QR_ICON_SRC}" class="qr-fab-icon" alt="">
-      </button>
+      <div class="qr-footer-prompt">
+        <button type="button" class="qr-fab" aria-label="Show QR code for this page">
+          <img src="${QR_ICON_SRC}" class="qr-fab-icon" alt="">
+        </button>
+        <button type="button" class="qr-footer-label">Show QR</button>
+      </div>
       <span class="site-footer-copy">(C) Madison & Steve</span>
     `;
     el.querySelector('.qr-fab').addEventListener('click', openQrModal);
+    el.querySelector('.qr-footer-label').addEventListener('click', openQrModal);
     return;
   }
 

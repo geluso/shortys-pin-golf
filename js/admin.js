@@ -26,7 +26,7 @@ async function loadAdminLeaderboard(listEl) {
         <th>Name</th>
         <th>Holes Played</th>
         <th>Balls</th>
-        <th>Delta</th>
+        <th>Delta (holes played)</th>
         <th></th>
       </tr>
     </thead>

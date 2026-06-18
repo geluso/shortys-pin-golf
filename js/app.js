@@ -147,6 +147,47 @@ function initEditForm({ form, tbody, messageEl, entry }) {
   return { inputs };
 }
 
+function createLeaderboardRow(entry, options = {}) {
+  const { highlightId, linkName = true, extraClass = '' } = options;
+  const tr = document.createElement('tr');
+  const classes = [];
+  if (extraClass) classes.push(extraClass);
+  if (highlightId && entry.id && isValidEntryId(highlightId) && entry.id === highlightId) {
+    classes.push('leaderboard-highlight');
+  }
+  if (classes.length) tr.className = classes.join(' ');
+
+  const tdName = document.createElement('td');
+  if (linkName && entry.id) {
+    const link = document.createElement('a');
+    link.href = pagePath(`entry.html?id=${encodeURIComponent(entry.id)}`);
+    link.textContent = entry.name;
+    tdName.appendChild(link);
+  } else {
+    tdName.textContent = entry.name;
+  }
+
+  const tdHoles = document.createElement('td');
+  tdHoles.className = 'leaderboard-holes';
+  tdHoles.textContent = holesPlayed(entry.scores) || '—';
+
+  const tdBalls = document.createElement('td');
+  tdBalls.className = 'leaderboard-balls';
+  tdBalls.textContent = formatVsPar(entry.scores);
+
+  const tdDelta = document.createElement('td');
+  tdDelta.className = 'leaderboard-delta';
+  tdDelta.textContent = formatDelta(entry.scores);
+
+  tr.append(tdName, tdHoles, tdBalls, tdDelta);
+  return tr;
+}
+
+const PAR_ENTRY = {
+  name: 'Par',
+  scores: HOLES.map((h) => h.par),
+};
+
 async function loadLeaderboard(listEl, options = {}) {
   const { highlightId, limit } = options;
   const entries = await api(appPath('/api/entries.php'));
@@ -164,7 +205,7 @@ async function loadLeaderboard(listEl, options = {}) {
         <th>Name</th>
         <th>Holes Played</th>
         <th>Balls</th>
-        <th>Delta</th>
+        <th>Delta (holes played)</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -173,7 +214,7 @@ async function loadLeaderboard(listEl, options = {}) {
   const tbody = table.querySelector('tbody');
   let highlightedEl = null;
 
-  if (shown.length === 0) {
+  if (shown.length === 0 && limit) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
     td.colSpan = 4;
@@ -182,44 +223,47 @@ async function loadLeaderboard(listEl, options = {}) {
     tr.appendChild(td);
     tbody.appendChild(tr);
   } else {
+    const fullView = !limit;
+    const hasIncomplete = fullView && shown.some((e) => holesPlayed(e.scores) < HOLES.length);
+    let lastCompleteRow = null;
+
+    if (fullView) {
+      tbody.appendChild(createLeaderboardRow(PAR_ENTRY, { linkName: false, extraClass: 'leaderboard-par' }));
+    }
+
     shown.forEach((entry) => {
-      const tr = document.createElement('tr');
-      if (highlightId && isValidEntryId(highlightId) && entry.id === highlightId) {
-        tr.className = 'leaderboard-highlight';
-      }
-
-      const tdName = document.createElement('td');
-      const link = document.createElement('a');
-      link.href = pagePath(`entry.html?id=${encodeURIComponent(entry.id)}`);
-      link.textContent = entry.name;
-      tdName.appendChild(link);
-
-      const tdHoles = document.createElement('td');
-      tdHoles.className = 'leaderboard-holes';
-      tdHoles.textContent = holesPlayed(entry.scores) || '—';
-
-      const tdBalls = document.createElement('td');
-      tdBalls.className = 'leaderboard-balls';
-      tdBalls.textContent = formatVsPar(entry.scores);
-
-      const tdDelta = document.createElement('td');
-      tdDelta.className = 'leaderboard-delta';
-      tdDelta.textContent = formatDelta(entry.scores);
-
-      tr.append(tdName, tdHoles, tdBalls, tdDelta);
+      const tr = createLeaderboardRow(entry, { highlightId });
       tbody.appendChild(tr);
+
+      if (holesPlayed(entry.scores) === HOLES.length) {
+        lastCompleteRow = tr;
+      }
 
       if (highlightId && isValidEntryId(highlightId) && entry.id === highlightId) {
         highlightedEl = tr;
       }
     });
+
+    if (fullView && hasIncomplete && lastCompleteRow) {
+      lastCompleteRow.classList.add('leaderboard-complete-cutoff');
+    }
+
+    if (fullView && shown.length === 0) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 4;
+      td.className = 'leaderboard-empty';
+      td.textContent = 'No scores yet.';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
   }
 
   listEl.innerHTML = '';
   if (!limit) {
     const note = document.createElement('p');
     note.className = 'leaderboard-note';
-    note.textContent = 'An asterisk by a Delta score means the player has not played all holes.';
+    note.textContent = 'Players below the red line have not completed all holes.';
     listEl.appendChild(note);
   }
   listEl.appendChild(table);

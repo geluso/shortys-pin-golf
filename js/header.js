@@ -74,6 +74,10 @@ function openQrModal() {
   modal.hidden = false;
 }
 
+function footerCopyHtml() {
+  return '(C) Madison & <a href="https://5tephen.com" class="site-footer-link">5tephen.com</a>';
+}
+
 function renderSiteFooter({ qr = false } = {}) {
   const el = document.getElementById('site-footer');
   if (!el) return;
@@ -88,7 +92,7 @@ function renderSiteFooter({ qr = false } = {}) {
         </button>
         <button type="button" class="qr-footer-label">Show QR</button>
       </div>
-      <span class="site-footer-copy">(C) Madison & Steve</span>
+      <span class="site-footer-copy">${footerCopyHtml()}</span>
     `;
     el.querySelector('.qr-fab').addEventListener('click', openQrModal);
     el.querySelector('.qr-footer-label').addEventListener('click', openQrModal);
@@ -96,5 +100,5 @@ function renderSiteFooter({ qr = false } = {}) {
   }
 
   el.className = 'site-footer';
-  el.textContent = '(C) Madison & Steve';
+  el.innerHTML = `<span class="site-footer-copy">${footerCopyHtml()}</span>`;
 }

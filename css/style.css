@@ -142,6 +142,18 @@ body.has-qr-footer {
   font-size: 0.875rem;
 }
 
+.site-footer-link {
+  color: #000;
+  text-decoration: underline;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.site-footer-link:hover,
+.site-footer-link:visited {
+  color: #000;
+}
+
 .qr-footer-prompt {
   display: flex;
   align-items: center;
@@ -434,6 +446,15 @@ a.button:active {
 .leaderboard-note {
   text-align: left;
   margin: 0 0 1rem;
+}
+
+.leaderboard-par {
+  background: #e8e8e8;
+  color: #666;
+}
+
+.leaderboard-complete-cutoff td {
+  border-bottom: 2px solid #c00;
 }
 
 .leaderboard-table th {
